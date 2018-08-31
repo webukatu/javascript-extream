@@ -13735,7 +13735,6 @@ var _ = require('../node_modules/underscore/underscore');
 //=============================================
 // ModelとViewの連携でItemを作る
 //=============================================
-
 var Item = Backbone.Model.extend({
   defaults: {
     text: '',
@@ -13743,9 +13742,9 @@ var Item = Backbone.Model.extend({
     editMode: false
   }
 });
-var item1 = new Item({text: 'sample todo1'});
 
 var ItemView = Backbone.View.extend({
+  template: _.template($('#template-list-item').html()),
   events: {
     'click .js-toggle-done': 'toggleDone',
     'click .js-click-trash': 'remove',
@@ -13765,7 +13764,7 @@ var ItemView = Backbone.View.extend({
     this.model.set({isDone: !this.model.get('isDone')});
   },
   remove: function () {
-    $(this.el).remove();
+    this.$el.remove();
     return this;
   },
   showEdit: function () {
@@ -13777,13 +13776,66 @@ var ItemView = Backbone.View.extend({
     }
   },
   render: function () {
-    console.log('render');
-    var compiled = _.template($('#template-list-item').html());
-    $(this.el).html(compiled(this.model.attributes));
+    console.log('render item');
+    var template = this.template(this.model.attributes);
+    this.$el.html(template);
     return this;
   }
 });
 
-var itemView = new ItemView({el: $('.js-todo_list'), model: item1});
-itemView.update('sample test');
+//=============================================
+// Collectionの使い方
+//=============================================
+// BackboneにはControllerはない
+// CollectionはModelを複数扱うためのオブジェクト
+
+var LIST = Backbone.Collection.extend({
+  model: Item
+});
+
+var item1 = new Item({text: 'sample todo1'});
+var item2 = new Item({text: 'sample todo2'});
+var list = new LIST([item1, item2]);
+// これと同じこと
+var list2 = new LIST([{text: 'sample todo3'}, {text: 'sample todo4'}]);
+console.log(list);
+console.log(list2);
+
+// eachはunderscoreのメソッド
+list.each(function(e, i) {
+  console.log('[' + i + '] ' + e.get('text'));
+});
+
+
+//=============================================
+// CollectionとModelとViewの連携
+//=============================================
+var ListView = Backbone.View.extend({
+  el: $('.js-todo_list'),
+  collection: list,
+  initialize: function(){
+    _.bindAll(this, 'render', 'addItem', 'appendItem');
+    this.collection.bind('add', this.appendItem);
+    this.render();
+  },
+  addItem: function (text) {
+    var model = new Item({text: text});
+    this.collection.add(model); // add イベントが発生し、this.appendItem が呼ばれる
+  },
+  appendItem: function (model) {
+    var itemView = new ItemView({model: model});
+    this.$el.append(itemView.render().el);
+  },
+  render: function () {
+    console.log('render list');
+    var that = this;
+    this.collection.each(function(model, i) {
+      that.appendItem(model);
+    });
+    return this;
+  }
+});
+var listView = new ListView({collection: list});
+listView.addItem('sample2');
+listView.addItem('sample3');
 },{"../node_modules/backbone/backbone":1,"../node_modules/jquery/dist/jquery":2,"../node_modules/underscore/underscore":3}]},{},[4]);
