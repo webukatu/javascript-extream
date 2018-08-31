@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ClassNames from 'classnames';
 
 export default class Task extends React.Component {
@@ -47,8 +48,8 @@ export default class Task extends React.Component {
       });
     }
   }
-  componentWillUnmount(){
-    console.log('componentWillUnmount');
+  componentWillUnmountWillMount(){
+    console.log('componentWillUnmountWillMount');
   }
   render() {
     // reactにはclassを付け替えする機能はないので、外部ライブラリを使う
