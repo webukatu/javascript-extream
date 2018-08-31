@@ -13,7 +13,7 @@ body{
   background: #fff;
   border: 5px solid #f6f5f4;
   margin-bottom: 15px;
-  padding: 15px 0;
+  padding: 15px;
 }
 .btn{
   cursor: pointer;
@@ -21,4 +21,8 @@ body{
   padding: 5px 15px;
   border: none;
   color: #fff;
+}
+textarea{
+  width: 100%;
+  border: 1px solid #e8e8e8;
 }

@@ -952,303 +952,198 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } //=============================================
-// React.jsとは？
-//=============================================
-// ・MVCのVだけのフレームワーク（というかライブラリに近い）
-// ・bootstrapのようにボタン、フォームといったコンポーネント単位で管理できる
-// ・仮想DOM（VertualDOM）を使って、差分だけをレンダリング
-// ・JSXを使えば、js内でhtml風に書ける
-// ・propsとstateというプロパティを元に色々な処理をしていくもの
-// ・一方向のデータフローにより、従来の双方向データバインディングを実現するコードよりも簡素でわかりやすい
-
-
-// JavaScriptで書かれたライブラリ。react.jsをインクルードして使う。
-//（MVCで言うところの）Viewのみを担当する。
-// JavaScriptのコード中に（PHPの様に）「HTMLタグ(っぽいもの)」を書ける。
-// componentを作って使う
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 //=============================================
-// Sample01
+// イベントハンドリング
 //=============================================
-_reactDom2.default.render(_react2.default.createElement(
-  'h1',
-  null,
-  'Hello, world!'
-), document.getElementById('app1'));
+// onClickなどのイベントハンドラを使う
+// 発火させたい処理を {メソッド名} で指定する
+// ハンドラ内でthisを使う場合にはconstructor内でbindして束縛する必要がある
+var ToggleBtn = function (_React$Component) {
+  _inherits(ToggleBtn, _React$Component);
 
-//=============================================
-// Sample02 JSXを使う
-//=============================================
-function formatName(user) {
-  return user.firstName + ' ' + user.lastName;
-}
+  function ToggleBtn(props) {
+    _classCallCheck(this, ToggleBtn);
 
-var user = {
-  firstName: 'kaz',
-  lastName: 'kichi'
-};
+    var _this = _possibleConstructorReturn(this, (ToggleBtn.__proto__ || Object.getPrototypeOf(ToggleBtn)).call(this, props));
 
-var element = _react2.default.createElement(
-  'h1',
-  null,
-  'Hello, ',
-  formatName(user),
-  '!'
-);
+    _this.state = {
+      isToggleOn: true
+    };
 
-_reactDom2.default.render(element, document.getElementById('app2'));
-
-//=============================================
-// Sample03 コンポーネントとprops（ES6での書き方）
-//=============================================
-
-var Welcome = function (_React$Component) {
-  _inherits(Welcome, _React$Component);
-
-  function Welcome() {
-    _classCallCheck(this, Welcome);
-
-    return _possibleConstructorReturn(this, (Welcome.__proto__ || Object.getPrototypeOf(Welcome)).apply(this, arguments));
+    // ハンドラの中でthisを使う場合は、別のthisになってしまうので束縛が必要（そのまま使うとエラーが出る）
+    _this.handleClick = _this.handleClick.bind(_this);
+    return _this;
   }
 
-  _createClass(Welcome, [{
+  _createClass(ToggleBtn, [{
+    key: 'handleClick',
+    value: function handleClick() {
+      // setStateの中で前のstateを使いたい場合は、fuctionを渡すこと！
+      this.setState(function (prevState) {
+        return {
+          isToggleOn: !prevState.isToggleOn
+        };
+      });
+    }
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
-        'h1',
-        null,
-        'Hello, ',
-        this.props.name
+        'button',
+        { className: 'btn', onClick: this.handleClick },
+        this.state.isToggleOn ? 'ON' : 'OFF'
       );
     }
   }]);
 
-  return Welcome;
+  return ToggleBtn;
 }(_react2.default.Component);
 
-var element2 = _react2.default.createElement(Welcome, { name: 'Sara' });
-_reactDom2.default.render(element2, document.getElementById('app3'));
+_reactDom2.default.render(_react2.default.createElement(ToggleBtn, null), document.getElementById('app1'));
 
 //=============================================
-// Sample04 renderメソッド
+// Form
 //=============================================
-// render()が呼ばれると画面が再描画される
-function Clock(props) {
-  return _react2.default.createElement(
-    'div',
-    null,
-    _react2.default.createElement(
-      'h1',
-      null,
-      'Hello, world!'
-    ),
-    _react2.default.createElement(
-      'h2',
-      null,
-      'It is ',
-      props.date.toLocaleTimeString(),
-      '.'
-    )
-  );
-}
-function tick() {
-  _reactDom2.default.render(_react2.default.createElement(Clock, { date: new Date() }), document.getElementById('app4'));
-}
-setInterval(tick, 1000);
 
-// ブログでよく見るcreateClassはv16から使えなくなった
-// var CommentBox = React.createClass({
-//   render: function() {
-//     return (
-//       <div className="commentBox">
-//         Hello, world! I am a CommentBox.
-//       </div>
-//     );
-//   }
-// });
-// React.render(
-//   <CommentBox />,
-//   document.getElementById('app5')
-// );
+// reactでは、brタグやinputタグなどシングルタグやiタグなど空タグで使う場合、最後に必ず/をつける必要がある
 
-//=============================================
-// Sample05 propsとstate
-//=============================================
-// stateはコンポーネントの中だけで保持しておける変数のこと
-// propsでは値を受け取って、それを元になんやかんやする
-// stateは自分で使う値を保持して、それを元になんやかんやする
-// stateを使うには、this.state.プロパティ名
+var Form = function (_React$Component2) {
+  _inherits(Form, _React$Component2);
 
-var Clock2 = function (_React$Component2) {
-  _inherits(Clock2, _React$Component2);
+  function Form(props) {
+    _classCallCheck(this, Form);
 
-  function Clock2(props) {
-    _classCallCheck(this, Clock2);
-
-    var _this2 = _possibleConstructorReturn(this, (Clock2.__proto__ || Object.getPrototypeOf(Clock2)).call(this, props));
+    var _this2 = _possibleConstructorReturn(this, (Form.__proto__ || Object.getPrototypeOf(Form)).call(this, props));
 
     _this2.state = {
-      date: new Date()
+      value: 'デフォルトの値'
     };
+
+    _this2.handleChange = _this2.handleChange.bind(_this2);
+    _this2.handleSubmit = _this2.handleSubmit.bind(_this2);
     return _this2;
   }
+  // inputやtextareaにはonChangeは必ず必要（change内でsetStateで値を変更しないと画面上でも変わらない）
 
-  _createClass(Clock2, [{
+
+  _createClass(Form, [{
+    key: 'handleChange',
+    value: function handleChange(event) {
+      this.setState({ value: event.target.value });
+    }
+  }, {
+    key: 'handleSubmit',
+    value: function handleSubmit(event) {
+      event.preventDefault();
+      alert(this.state.value);
+    }
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
-        'div',
-        null,
+        'form',
+        { onSubmit: this.handleSubmit },
         _react2.default.createElement(
-          'h1',
+          'label',
           null,
-          'Hello, world!'
+          'comment:',
+          _react2.default.createElement('br', null),
+          _react2.default.createElement('textarea', { value: this.state.value, onChange: this.handleChange })
         ),
-        _react2.default.createElement(
-          'h2',
-          null,
-          'It is ',
-          this.state.date.toLocaleTimeString(),
-          '.'
-        )
+        _react2.default.createElement('br', null),
+        _react2.default.createElement('input', { type: 'submit', value: '\u30A2\u30E9\u30FC\u30C8\u51FA\u3059', className: 'btn' })
       );
     }
   }]);
 
-  return Clock2;
+  return Form;
 }(_react2.default.Component);
 
-_reactDom2.default.render(_react2.default.createElement(Clock2, null), document.getElementById('app5'));
+_reactDom2.default.render(_react2.default.createElement(Form, null), document.getElementById('app2'));
 
 //=============================================
-// Sample06 ライフサイクル
+// 複数のForm項目の場合
 //=============================================
-// componentDidMountは
-// componentWillUnmountは
-// setStateを使ってstateが変更されると自動的にrender()が動いて再描画される
-// （this.stateにそのまま詰めるとrender()は動かない）
 
-var Clock3 = function (_React$Component3) {
-  _inherits(Clock3, _React$Component3);
+var MultipleForm = function (_React$Component3) {
+  _inherits(MultipleForm, _React$Component3);
 
-  function Clock3(props) {
-    _classCallCheck(this, Clock3);
+  function MultipleForm(props) {
+    _classCallCheck(this, MultipleForm);
 
-    console.log('constructor');
+    var _this3 = _possibleConstructorReturn(this, (MultipleForm.__proto__ || Object.getPrototypeOf(MultipleForm)).call(this, props));
 
-    var _this3 = _possibleConstructorReturn(this, (Clock3.__proto__ || Object.getPrototypeOf(Clock3)).call(this, props));
+    _this3.state = {
+      isGoing: true,
+      numberOfGuests: 2
+    };
 
-    _this3.state = { date: new Date() };
+    _this3.handleInputChange = _this3.handleInputChange.bind(_this3);
+    _this3.handleSubmit = _this3.handleSubmit.bind(_this3);
     return _this3;
   }
 
-  /**
-   * マウント前
-   * 初回描画の直前に呼ばれる。renderメソッドが呼ばれる前にコンポーネントの状態を変更したい場合は、このメソッド内で処理を書く。
-   */
+  _createClass(MultipleForm, [{
+    key: 'handleInputChange',
+    value: function handleInputChange(event) {
+      var target = event.target;
+      var value = target.type === 'checkbox' ? target.checked : target.value;
+      var name = target.name;
 
-
-  _createClass(Clock3, [{
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      console.log('componentWillMount');
-    }
-    /**
-     * マウント後
-     * 実際のDOMが表示された後に呼び出されるメソッド。このメソッド内で実際のDOMにアクセスが出来るようになる。
-     * jQueryでDOMを操作したい時などはこのメソッド内で行う。
-     */
-
-  }, {
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      var _this4 = this;
-
-      console.log('componentDidMount');
-      this.timerID = setInterval(function () {
-        return _this4.tick();
-      }, 1000);
-    }
-    /**
-     * setProps()によるプロパティの更新時
-     * 親コンポーネントのプロパティが変更されたタイミングで呼ばれる。
-     * 新しいpropsの値を元にコンポーネントの状態を変更したり、色々な処理を行うためのメソッド。
-     */
-
-  }, {
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps() {}
-    /**
-     * 更新前
-     */
-
-  }, {
-    key: 'componentWillUpdate',
-    value: function componentWillUpdate() {}
-    /**
-     * 更新後
-     */
-
-  }, {
-    key: 'componentDidUpdate',
-    value: function componentDidUpdate() {}
-    /**
-     * アンマウント(DOMからの削除)時
-     */
-
-  }, {
-    key: 'componentWillUnmount',
-    value: function componentWillUnmount() {
-      console.log('componentWillUnmount');
-      clearInterval(this.timerID);
+      this.setState(_defineProperty({}, name, value));
     }
   }, {
-    key: 'tick',
-    value: function tick() {
-      console.log('tick');
-      // stateを変更するには、this.setState({ プロパティ名: 値 });
-      this.setState({
-        date: new Date()
-      });
+    key: 'handleSubmit',
+    value: function handleSubmit(event) {
+      event.preventDefault();
+      alert(this.state.isGoing + ' & ' + this.state.numberOfGuests);
     }
-
-    /**
-     * このメソッドで仮想DOMが作られる。この仮想DOMを元に実際のDOMに対して変更が必要か判断をしている。
-     * コンポーネントクラス内には他のメソッドは省略できるが、renderメソッドは１コンポーネントに１つ必ず必要。
-     */
-
   }, {
     key: 'render',
     value: function render() {
-      console.log('render');
       return _react2.default.createElement(
-        'div',
-        null,
+        'form',
+        { onSubmit: this.handleSubmit },
         _react2.default.createElement(
-          'h1',
+          'label',
           null,
-          'Hello, world!'
+          'Is going:',
+          _react2.default.createElement('input', {
+            name: 'isGoing',
+            type: 'checkbox',
+            checked: this.state.isGoing,
+            onChange: this.handleInputChange })
         ),
+        _react2.default.createElement('br', null),
         _react2.default.createElement(
-          'h2',
+          'label',
           null,
-          'It is ',
-          this.state.date.toLocaleTimeString(),
-          '.'
-        )
+          'Number of guests:',
+          _react2.default.createElement('br', null),
+          _react2.default.createElement('input', {
+            name: 'numberOfGuests',
+            type: 'number',
+            value: this.state.numberOfGuests,
+            onChange: this.handleInputChange })
+        ),
+        _react2.default.createElement('br', null),
+        _react2.default.createElement('input', { type: 'submit', value: '\u30A2\u30E9\u30FC\u30C8\u51FA\u3059', className: 'btn' })
       );
     }
   }]);
 
-  return Clock3;
+  return MultipleForm;
 }(_react2.default.Component);
 
-var clock3 = _reactDom2.default.render(_react2.default.createElement(Clock3, null), document.getElementById('app6'));
+_reactDom2.default.render(_react2.default.createElement(MultipleForm, null), document.getElementById('app3'));
 
 /***/ }),
 /* 15 */
