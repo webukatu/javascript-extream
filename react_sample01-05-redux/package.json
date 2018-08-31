@@ -1,0 +1,32 @@
+{
+  "name": "react_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "react": "^16.2.0", // reactを使うのに必要
+    "react-dom": "^16.2.0" // reactを使うのに必要
+  },
+  "devDependencies": {
+    "babel": "^6.23.0", // ES6で書くためのもの
+    "babel-core": "^6.26.0", // ES6で書くためのもの
+    "babel-loader": "7.1.1", // ES6で書くためのもの
+    "babel-preset-es2015": "^6.24.1", // ES6で書くためのもの
+    "babel-preset-react": "^6.24.1", // reactでES6で書くためのもの
+    "browser-sync": "^2.18.13",
+    "browserify": "^14.5.0",
+    "gulp": "^3.9.1", // タスクランナー
+    "gulp-notify": "^3.0.0", // gulpタスクがエラーになった時に通知してくれる
+    "gulp-plumber": "^1.1.0", // gulpタスクがエラーになっても止まらずに実行してくれる
+    "gulp-webpack": "^1.5.0", // webpackをgulpで使う
+    "vinyl-source-stream": "^1.1.0",
+    "webpack": "^3.9.1",
+    "webpack-stream": "^4.0.0"
+  }
+}
