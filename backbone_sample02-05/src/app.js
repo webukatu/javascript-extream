@@ -3,7 +3,7 @@ var $ = require('../node_modules/jquery/dist/jquery');
 var _ = require('../node_modules/underscore/underscore');
 
 //=============================================
-// ModelとViewの連携でItemを作る
+// Model
 //=============================================
 var Item = Backbone.Model.extend({
   defaults: {
@@ -12,7 +12,29 @@ var Item = Backbone.Model.extend({
     editMode: false
   }
 });
+var Form = Backbone.Model.extend({
+  defaults: {
+    val: '',
+    hasError: false,
+    errorMsg: ''
+  }
+});
+var form = new Form();
 
+//=============================================
+// Collection
+//=============================================
+var LIST = Backbone.Collection.extend({
+  model: Item
+});
+
+var item1 = new Item({text: 'sample todo1'});
+var item2 = new Item({text: 'sample todo2'});
+var list = new LIST([item1, item2]);
+
+//=============================================
+// View
+//=============================================
 var ItemView = Backbone.View.extend({
   template: _.template($('#template-list-item').html()),
   events: {
@@ -26,9 +48,6 @@ var ItemView = Backbone.View.extend({
     // オブザーバパターンを利用してモデルのイベントを購読
     this.model.bind('change', this.render);
     this.model.bind('destroy', this.remove);
-  },
-  update: function (text) {
-    this.model.set({text: text}); // change が発生し、this.render が呼ばれる
   },
   toggleDone: function () {
     this.model.set({isDone: !this.model.get('isDone')});
@@ -48,38 +67,14 @@ var ItemView = Backbone.View.extend({
   render: function () {
     console.log('render item');
     var template = this.template(this.model.attributes);
+    // このViewではelを何も指定していない。elを指定していない場合、Viewの中ではデフォルトで新たなdivタグのDOMが生成される。
+    // そのため、this.$el.html()とした場合、新しい空のdivタグの中のhtmlがテンプレートのliタグに書き換えられる。
+    // 開発ツールで実際にタスクをみてみると全てliタグがdivタグで囲われているのが確認できる。
     this.$el.html(template);
     return this;
   }
 });
 
-//=============================================
-// Collectionの使い方
-//=============================================
-// BackboneにはControllerはない
-// CollectionはModelを複数扱うためのオブジェクト
-
-var LIST = Backbone.Collection.extend({
-  model: Item
-});
-
-var item1 = new Item({text: 'sample todo1'});
-var item2 = new Item({text: 'sample todo2'});
-var list = new LIST([item1, item2]);
-// これと同じこと
-var list2 = new LIST([{text: 'sample todo3'}, {text: 'sample todo4'}]);
-console.log(list);
-console.log(list2);
-
-// eachはunderscoreのメソッド
-list.each(function(e, i) {
-  console.log('[' + i + '] ' + e.get('text'));
-});
-
-
-//=============================================
-// CollectionとModelとViewの連携
-//=============================================
 var ListView = Backbone.View.extend({
   el: $('.js-todo_list'),
   collection: list,
@@ -94,7 +89,7 @@ var ListView = Backbone.View.extend({
   },
   appendItem: function (model) {
     var itemView = new ItemView({model: model});
-    this.$el.append(itemView.render().el);
+    this.$el.append(itemView.render().el); // render().elでviewで生成されたエレメントを取得できる
   },
   render: function () {
     console.log('render list');
@@ -106,5 +101,31 @@ var ListView = Backbone.View.extend({
   }
 });
 var listView = new ListView({collection: list});
-listView.addItem('sample2');
-listView.addItem('sample3');
+
+var FormView = Backbone.View.extend({
+  el: $('.js-form'),
+  template: _.template($('#template-form').html()),
+  model: form,
+  events: {
+    'click .js-add-todo': 'addTodo'
+  },
+  initialize: function(){
+    _.bindAll(this, 'render', 'addTodo');
+    this.model.bind('change', this.render);
+    this.render();
+  },
+  addTodo: function(e){
+    e.preventDefault();
+    this.model.set({val: $('.js-get-val').val()});
+    listView.addItem(this.model.get('val'));
+  },
+  render: function () {
+    var template = this.template(this.model.attributes);
+    this.$el.html(template);
+    return this;
+  }
+});
+new FormView();
+
+// 宿題１：inputが空で入力された場合にエラーメッセージを表示してみよう
+// 宿題２：検索を作ってみよう
