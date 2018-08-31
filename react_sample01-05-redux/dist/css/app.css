@@ -42,6 +42,7 @@ body{
   cursor: pointer;
 }
 .error{
+  display: none;
   color: #E9573E;
 }
 .searchBox{
