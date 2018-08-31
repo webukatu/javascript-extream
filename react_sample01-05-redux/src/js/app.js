@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TodoList from './components/TodoList'
-import TodoCreator from './components/TodoCreater'
+import TodoList from './components/TodoList';
+import TodoCreator from './components/TodoCreater';
+import Search from './components/Search';
 
 class TodoApp extends React.Component {
 
@@ -17,16 +18,23 @@ class TodoApp extends React.Component {
           id: this.createHashId(),
           text: 'sample todo2'
         }
-      ]
+      ],
+      searchText: ''
     };
     this.callBackRemoveTask = this.callBackRemoveTask.bind(this);
     this.callBackAddTask = this.callBackAddTask.bind(this);
+    this.callBackSearch = this.callBackSearch.bind(this);
+    this.filterCollection = this.filterCollection.bind(this);
   }
 
   createHashId(){
-    // 完全に一意なキーは生成できないので注意！
-    // 一意なキーにしたいなら外部ライブラリを使うか、このコンポーネントで...【課題】
     return Math.random().toString(36).slice(-16);
+  }
+
+  callBackSearch(val) {
+    this.setState({
+      searchText: val
+    });
   }
 
   callBackRemoveTask(id){
@@ -37,18 +45,6 @@ class TodoApp extends React.Component {
   }
 
   callBackAddTask(val){
-    // 新たにタスク追加する際にidを振る必要があるが、idを配列の順番号にしてしまうとタスクが削除された際に同じidが振られてしまう
-    // const data = [
-    //   {
-    //     id: 0
-    //   },
-    //   {
-    //     id: 1
-    //   },
-    //   {
-    //     id: 2
-    //   }
-    // ];
     let nextData = this.state.data;
     nextData.push({ id: this.createHashId(), text: val });
     this.setState({
@@ -56,19 +52,24 @@ class TodoApp extends React.Component {
     });
   }
 
+  filterCollection(elm){
+    const regexp = new RegExp('^' + this.state.searchText, 'i');
+    return (elm.text.match(regexp));
+  }
+
   render() {
+
+    const data = (this.state.searchText) ? this.state.data.filter(this.filterCollection) : this.state.data;
+    // ただし、検索して戻すとdone状態が外れてしまう
+
     return (
       <div>
 
         <TodoCreator callBackAddTask={this.callBackAddTask}/>
 
-        <div className="searchBox">
-          <i className="fa fa-search searchBox__icon" aria-hidden="true" />
-          <input type="text" className="searchBox__input js-search"
-                 value="" placeholder="somothing keyword" />
-        </div>
+        <Search callBackSearch={this.callBackSearch} />
 
-        <TodoList data={this.state.data} callBackRemoveTask={this.callBackRemoveTask}/>
+        <TodoList data={data} callBackRemoveTask={this.callBackRemoveTask}/>
 
       </div>
     );
