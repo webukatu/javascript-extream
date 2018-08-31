@@ -3,52 +3,56 @@ var $ = require('../node_modules/jquery/dist/jquery');
 var _ = require('../node_modules/underscore/underscore');
 
 //=============================================
-// viewとmodelを連携させる
+// ModelとViewの連携でItemを作る
 //=============================================
-var MyModel = Backbone.Model.extend({
+
+var Item = Backbone.Model.extend({
   defaults: {
-    name: 'default name',
-    text: 'default text',
-    like: 10
+    text: '',
+    isDone: false,
+    editMode: false
+  }
+});
+var item1 = new Item({text: 'sample todo1'});
+
+var ItemView = Backbone.View.extend({
+  events: {
+    'click .js-toggle-done': 'toggleDone',
+    'click .js-click-trash': 'remove',
+    'click .js-todo_list-text': 'showEdit',
+    'keyup .js-todo_list-editForm': 'closeEdit'
   },
-  initialize: function (attrs, options) {
-    console.log("attrs", attrs);
-    console.log("options", options);
+  initialize: function (options) {
+    _.bindAll(this, 'toggleDone', 'render', 'remove', 'showEdit', 'closeEdit');
+    // オブザーバパターンを利用してモデルのイベントを購読
+    this.model.bind('change', this.render);
+    this.model.bind('destroy', this.remove);
   },
-  validate: function (attrs) {
-    if (attrs.text.length === 0) {
-      return "入力されていません";
+  update: function (text) {
+    this.model.set({text: text}); // change が発生し、this.render が呼ばれる
+  },
+  toggleDone: function () {
+    this.model.set({isDone: !this.model.get('isDone')});
+  },
+  remove: function () {
+    $(this.el).remove();
+    return this;
+  },
+  showEdit: function () {
+    this.model.set({editMode: true});
+  },
+  closeEdit: function (e) {
+    if(e.keyCode === 13 && e.shiftKey === true){
+      this.model.set({text: e.currentTarget.value, editMode: false});
     }
   },
-  method: function() {
-
-  }
-});
-var myModel = new MyModel({name: 'kazukichi', text: 'sample test', like: 0});
-
-var MyView = Backbone.View.extend({
-  events: {
-    "click .js-click-like" : "countUp",
-  },
-  initialize: function(){
-    _.bindAll(this, "render");
-    this.model.bind("change", this.render); // データが変化したらthis.renderを呼び出す（再描画する）
-    this.render();
-  },
-  /**
-   * お気に入りカウントアップ
-   */
-  countUp: function(){
-    this.model.set({like: this.model.get('like') + 1});
-  },
-  render: function(){
+  render: function () {
     console.log('render');
-    var compiled = _.template($('#template1').html());
-    $(this.el).html(compiled({
-      name: this.model.get('name'),
-      text: this.model.get('text'),
-      like: this.model.get('like')
-    }));
+    var compiled = _.template($('#template-list-item').html());
+    $(this.el).html(compiled(this.model.attributes));
+    return this;
   }
 });
-new MyView({el: $("#app"), model: myModel});
+
+var itemView = new ItemView({el: $('.js-todo_list'), model: item1});
+itemView.update('sample test');
