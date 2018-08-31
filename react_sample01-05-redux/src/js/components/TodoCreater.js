@@ -1,6 +1,9 @@
 import React from 'react';
+import { connect } from 'react-redux'
+import { addTask } from '../actions'
+import PropTypes from "prop-types";
 
-export default class TodoCreator extends React.Component {
+class TodoCreator extends React.Component {
 
   constructor(props){
     super(props);
@@ -10,6 +13,9 @@ export default class TodoCreator extends React.Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
+  }
+  createHashId(){
+    return Math.random().toString(36).slice(-16);
   }
   handleChange(e){
     this.setState({
@@ -32,7 +38,7 @@ export default class TodoCreator extends React.Component {
         val: '',
         errMsg: ''
       });
-      this.props.callBackAddTask(val);
+      this.props.dispatch(addTask(this.createHashId(), val));
     }
   }
   render() {
@@ -48,3 +54,9 @@ export default class TodoCreator extends React.Component {
     );
   }
 }
+
+TodoCreator.propTypes = {
+  dispatch: PropTypes.func.isRequired
+};
+
+export default connect()(TodoCreator)

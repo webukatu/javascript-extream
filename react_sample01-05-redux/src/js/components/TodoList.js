@@ -1,21 +1,20 @@
 import React from 'react';
 import Task from './Task';
+import PropTypes from 'prop-types';
 
-export default class TodoList extends React.Component {
+class TodoList extends React.Component {
 
   constructor(props){
     super(props);
-    this.handleRemove = this.handleRemove.bind(this);
-  }
-  handleRemove(id){
-    this.props.callBackRemoveTask(id);
   }
   render() {
+    const { todos, onClickToggleDone, onClickRemove, onEnterUpdateTask } = this.props;
     let tasks = [];
-    for(let i in this.props.data){
-      tasks.push(<Task key={this.props.data[i].id}
-                       id={this.props.data[i].id}
-                       text={this.props.data[i].text} onRemove={this.handleRemove} />);
+    for(let i in todos){
+      tasks.push(<Task key={todos[i].id} {...todos[i]}
+                       onClickToggleDone={() => onClickToggleDone(todos[i].id)}
+                       onClickRemove={() => onClickRemove(todos[i].id)}
+                       onEnterUpdateTask={(text) => onEnterUpdateTask(todos[i].id, text)}/>);
     }
 
     return (
@@ -25,3 +24,18 @@ export default class TodoList extends React.Component {
     );
   }
 }
+
+TodoList.propTypes = {
+  todos: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      isDone: PropTypes.bool.isRequired,
+      text: PropTypes.string.isRequired
+    }).isRequired
+  ).isRequired,
+  onClickToggleDone: PropTypes.func.isRequired,
+  onClickRemove: PropTypes.func.isRequired,
+  onEnterUpdateTask: PropTypes.func.isRequired
+};
+
+export default TodoList;

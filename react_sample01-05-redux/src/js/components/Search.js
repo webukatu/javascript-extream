@@ -1,6 +1,9 @@
 import React from 'react';
+import { connect } from 'react-redux'
+import { searchTask } from '../actions'
+import PropTypes from "prop-types";
 
-export default class Search extends React.Component {
+class Search extends React.Component {
 
   constructor(props){
     super(props);
@@ -13,7 +16,7 @@ export default class Search extends React.Component {
     this.setState({
       val: e.target.value
     });
-    this.props.callBackSearch(e.target.value);
+    this.props.dispatch(searchTask(e.target.value));
   }
   render() {
     return (
@@ -25,3 +28,9 @@ export default class Search extends React.Component {
     );
   }
 }
+
+Search.propTypes = {
+  dispatch: PropTypes.func.isRequired
+};
+
+export default connect()(Search)
